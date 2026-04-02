@@ -105,3 +105,8 @@ def factorial(no):
         return no * factorial(no - 1)
 
 print("factorial of a number is:", factorial(8))
+
+#Anonymous/Lambda Functions
+l = [10, 5, 12, 78, 6, 1, 7, 9]
+even_nos = list(filter(lambda x: x % 2 == 0, l))
+print("Even numbers are: ", even_nos)
