@@ -42,5 +42,21 @@ def odd_even_sum(lst):
     return esum,osum
 sum1,sum2=odd_even_sum([0,5,2,5,6,5,8])
 print(sum1,sum2)  
+
+global_lang = 'DataScience'
+
+def var_scope_test():
+    local_lang = 'Python'
+    print(local_lang)
+
+var_scope_test()
+# Output 'Python'
+
+# outside of function
+print(global_lang)
+# Output 'DataScience'
+
+# NameError: name 'local_lang' is not defined
+#print(local_lang)
  
 
