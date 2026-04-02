@@ -58,5 +58,50 @@ print(global_lang)
 
 # NameError: name 'local_lang' is not defined
 #print(local_lang)
- 
 
+ #Going through global var and keyword
+ # Global variable
+global_var = 5
+
+def function1():
+    print("Value in 1st function :", global_var)
+
+def function2():
+    # Modify global variable
+    # function will treat it as a local variable
+    global_var = 555
+    print("Value in 2nd function :", global_var)
+
+def function3():
+    print("Value in 3rd function :", global_var)
+
+function1()
+function2()
+function3()
+
+#Default and Variable length arguements
+
+#Default
+def func(name="Guest"):
+    print("Hey", name)
+func("Pranita") #calling function with arguement
+func()#calling function without arguement
+
+ #Variable length
+def add(*numbers):
+    sum=0
+    for no in numbers:
+        sum=sum+no
+    print("sum is",sum)
+add() #without arguments
+add(10,20)
+add(5,10,5,10,5,10)
+ 
+#Recursive function
+def factorial(no):
+    if no == 0:
+        return 1
+    else:
+        return no * factorial(no - 1)
+
+print("factorial of a number is:", factorial(8))
