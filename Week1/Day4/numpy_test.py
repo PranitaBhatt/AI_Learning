@@ -110,3 +110,49 @@ print(three_reshaped)
 #Flatening the array
 flat=shp_arr.reshape(-1)
 print(flat)
+
+#Iterating Numpy
+i=np.array([1,2,3,4,5])
+for n in i:
+    print(n)
+
+#Iterating 2D arrays
+twoid=np.array([[1,2,3],[4,5,6]])
+for ntwod in twoid:
+    print(ntwod)
+#printing each scalar element on 2D array
+for u in twoid:
+    for z in u:
+        print(z)
+
+#Iterating arrays using nditer() function
+arr_iter = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+for ar in np.nditer(arr_iter):
+    print(ar)
+
+
+#Splitting array
+arr1=np.array([1,2,3,4,5,6])
+spilted_arr=np.array_split(arr1,4)
+print(spilted_arr)
+
+#filtering array
+import numpy as np
+
+arr = np.array([41, 42, 43, 44])
+
+# Create an empty list
+filter_arr = []
+
+# go through each element in arr
+for element in arr:
+  # if the element is higher than 42, set the value to True, otherwise False:
+  if element > 42:
+    filter_arr.append(True)
+  else:
+    filter_arr.append(False)
+
+newarr = arr[filter_arr]
+
+print(filter_arr)
+print(newarr)
