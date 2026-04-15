@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
  
@@ -22,11 +24,12 @@ class Books:
  
  
 class BookRequest(BaseModel): #Pydantic model
-    id: int
-    title: str = Field(min_length=3)  # Field Validation
-    author: str = Field(min_length=1)
-    description: str = Field(min_length=3, max_length=100)
-    rating: int = Field(ft=0, lt=6)
+    #id: Optional[int] = None #we added id as optional so the type can be int or None. Also it will be generated automatically even if we didn't send it in the request body.
+    id: Optional[int] = Field(description='id is not needed in request body',default=None)  #This will provide a description
+    title: str = Field(min_length=3)  # Field Validation--minimum three characters
+    author: str = Field(min_length=1)#minimum one character
+    description: str = Field(min_length=3, max_length=100)#minimum three characters and maximum 100 characters
+    rating: int = Field(ft=0, lt=6)#range lies from 0 to 5
  
 BOOKS=[
     Books(1, "Space", "Thomas", "Very nice book", 5),
@@ -47,7 +50,8 @@ async def create_book(book_request: BookRequest): #book_request is parameter of 
     # Accept any number of named arguments (key-value pairs)
     print(type(book_request)) #BookRequest
     new_book = Books(**book_request.dict()) #Unpack dictionary into arguments and convert it to a Book object
-    BOOKS.append(book_request) #add new book to list
+    print(type(new_book)) #Books
+    BOOKS.append(find_book_id(new_book)) #add new book to list
    
 # User sends data
 # FastAPI receives it
@@ -55,3 +59,10 @@ async def create_book(book_request: BookRequest): #book_request is parameter of 
 # Create Book object
 # Add to list
  
+def find_book_id(book:Books):
+  book.id=1 if len(BOOKS)==0 else BOOKS[-1].id+1
+  return book
+'''  if len(BOOKS)>0:
+        book.id=BOOKS[-1].id+1
+    else:
+        book.id=1'''
