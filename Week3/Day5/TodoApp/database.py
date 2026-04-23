@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker #hleps to create a session for interacting with the database
 from sqlalchemy.ext.declarative import declarative_base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./todo.db" #This will create a location of this database
+SQLALCHEMY_DATABASE_URL = "sqlite:///./todosapp.db" #This will create a location of this database
 
 engine=create_engine(SQLALCHEMY_DATABASE_URL,connect_args={"check_same_thread": False}) #by default, SQLAlchemy does not allow multiple threads to access the same database connection. 
 #The connect_args={"check_same_thread": False} argument is used to disable this check and allow multiple threads to access the same database connection. This is necessary when using SQLite in a multi-threaded environment, such as when running a web application with multiple requests being handled concurrently.
