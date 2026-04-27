@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel,Field
 from starlette import status
 from models import Todos
+from .auth import get_current_user
 
 
 
@@ -19,6 +20,7 @@ def get_db():
         db.close() #and after getting a response  this stmt is executed when we fetched info from db, return it to clien with yeild db and close the connection of db
 
 db_depedency=Annotated[Session,Depends(get_db)] #assigning depedency to a variable for injection usability
+user_dependency=Annotated[dict,Depends(get_current_user)]
 
 #Adding a pydantic model for request body validation and response model
 class TodoRequest(BaseModel):
@@ -41,27 +43,41 @@ FastAPI injected it for you
 '''
 #creating a first api endpoint
 @router.get("/",status_code=status.HTTP_200_OK) 
-async def read_all(db: db_depedency): #Dependency Injection is when something your code needs is given to it instead of being created inside it. 
-    return db.query(Todos).all() #this will return all the records in the todos table of our database, and it will be returned as a response to the client when they make a GET request to the root endpoint ("/").
+async def read_all(user:user_dependency,db: db_depedency):
+    if user is None:
+        raise HTTPException(status_code=401,detail='authentication failed') #Dependency Injection is when something your code needs is given to it instead of being created inside it. 
+    return db.query(Todos).filter(Todos.owner_id==user.get('id')).all()
+
 
 @router.get("/todo/{todos_id}",status_code=status.HTTP_200_OK) #adding a path and path parameter with a http method and status code
-async def read_todo(db: db_depedency, todos_id: int=Path(gt=0)):
-    todo_model=db.query(Todos).filter(Todos.id==todos_id).first() #This line queries the database for a todo item with the specified ID. It uses the SQLAlchemy query interface to filter the Todos table based on the id column and retrieves the first matching record.
+async def read_todo(user:user_dependency,db: db_depedency, todos_id: int=Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401,detail='authentication failed')
+    todo_model=db.query(Todos).filter(Todos.id==todos_id).filter(Todos.owner_id==user.get('id')).first() #This line queries the database for a todo item with the specified ID. It uses the SQLAlchemy query interface to filter the Todos table based on the id column and retrieves the first matching record.
     if todo_model is not None: #This line checks if a matching todo item was found in the database. If the query returns a result, it means that a todo item with the specified ID exists.
         return todo_model 
     raise HTTPException(status_code=404, detail="Todo not found")  
 
 #adding a post request method
 @router.post("/todo",status_code=status.HTTP_201_CREATED)
-async def create_todo(db:db_depedency,todo_request:TodoRequest):
-    todo_model=Todos(**todo_request.dict()) 
+async def create_todo(user:user_dependency,   #adding a user dependency
+                      db:db_depedency,
+                      todo_request:TodoRequest):
+    if user is None:
+        raise HTTPException(status_code=401,detail='authentication failed')
+    todo_model=Todos(**todo_request.dict(),owner_id=user.get('id')) 
     db.add(todo_model) 
     db.commit()
 
 @router.put("/todo/{todo_id}",status_code=status.HTTP_204_NO_CONTENT)
-async def update_todo(db:db_depedency,todo_request:TodoRequest,todo_id:int):
-    todo_model=db.query(Todos).filter(Todos.id==todo_id).first()
-    if todo_model is not None: 
+async def update_todo(user:user_dependency,
+                      db:db_depedency,
+                      todo_request:TodoRequest,
+                      todo_id:int=Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401,detail='authentication failed')
+    todo_model=db.query(Todos).filter(Todos.id==todo_id).filter(Todos.owner_id==user.get('id')).first()
+    if todo_model is None: 
         raise HTTPException(status_code=404, detail="Todo not found") 
     todo_model.title=todo_request.title
     todo_model.description=todo_request.description
